@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 version: "3.8"
 
 services:
@@ -12,12 +13,45 @@ services:
   backend:
     build: ./backend
     container_name: tienda-backend
+=======
+version: '3.8'
+
+services:
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    container_name: tienda-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: tienda_perritos
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - tienda-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tienda-backend
+    restart: unless-stopped
+>>>>>>> 8c14f5bdcdcf24325a9e813f62dc1fd9b380a3b1
     environment:
       DB_HOST: db
       DB_USER: root
       DB_PASSWORD: admin123
       DB_NAME: tienda_perritos
       DB_PORT: 3306
+<<<<<<< HEAD
     ports:
       - "3001:3001"
     depends_on:
@@ -35,3 +69,34 @@ services:
 
 volumes:
   dbdata:
+=======
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - tienda-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tienda-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - tienda-network
+
+volumes:
+  dbdata:
+    driver: local
+
+networks:
+  tienda-network:
+    driver: bridge
+>>>>>>> 8c14f5bdcdcf24325a9e813f62dc1fd9b380a3b1
